@@ -1,0 +1,43 @@
+
+describe('Class', function() {
+
+  before(function(done) {
+    console.log("before!!");
+    done();
+  });
+
+  after(function(done) {
+    console.log("after!!");
+    done();
+  });
+
+  beforeEach(function(done) {
+    console.log("beforeEach!!");
+    done();
+  });
+
+  afterEach(function(done) {
+    console.log("afterEach!!");
+    done();
+  });
+
+  describe('#method1', function() {
+    it('テストで確認したい内容1', function(done) {
+      console.log("method1 - it1!!");
+      done();
+    });
+    it('テストで確認したい内容2', function(done) {
+      console.log("method1 - it2!!");
+      done();
+    });
+  });
+
+  describe('#method2', function() {
+    it('テストで確認したい内容1', function() {
+      console.log("method2 - it1!!");
+    });
+    it('テストで確認したい内容2', function() {
+      console.log("method2 - it2!!");
+    });
+  });
+});

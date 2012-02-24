@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>Tangole</title>
+<link href="../stylesheets/style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../javascripts/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="../javascripts/jquery.json-2.3.js"></script>
+<script type="text/javascript" src="../javascripts/jquery.tagcanvas.min.js"></script>
+<script type="text/javascript" src="../javascripts/story.js"></script>
+<script type="text/javascript" src="../javascripts/story.jsonp.js"></script>
+<script type="text/javascript" src="../javascripts/tangole.js"></script>
+<!--[if lt IE 9]>
+<script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+</head>
+<body id="page">
+<h1 id="actionTitle">action name</h1>
+
+<header>
+  <p id="title">「ROOM」は単語を集める場所です - Tangole</p>
+</header>
+
+<article id="note">
+  <h2 id="actionDesc">about this action</h2>
+<p>
+<form id="inputWords">
+  <table>
+    <tr>
+      <th>name</th>
+      <td><input type="text" name="room[name]" value="" class="middle" maxlength="20"></td>
+    </tr>
+    <tr>
+      <th>description</th>
+      <td><input type="text" name="room[desc]" value="" class="long" maxlength="150"></td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>
+        <input type="button" value="Save" id="doInsert">
+        <input type="button" value="Save" id="doUpdate">
+        <input type="button" value="Delete" id="doDelete">
+      </td>
+    </tr>
+  </table>
+</form>
+</p>
+</article>
+<nav>
+  <ul>
+    <li>- </li>
+    <li id="menuTop"><a href="./index.html">TOP</a> -</li>
+    <li id="menuGive"><a href="./give.html">GIVE</a> -</li>
+    <li id="menuTake"><a href="./take.html">TAKE</a> -</li>
+  </ul>
+</nav>
+<script type="text/javascript">
+$(document).ready(function() {
+  // 登録処理
+  $('#doInsert').click(function() {
+    STORY.jsonp.post('../rooms?callback=?', {
+        'room[name]': $('input[name="room[name]"]').val(),
+        'room[desc]': $('input[name="room[desc]"]').val()
+      }, function(err) {
+      if (err) {
+        alert('保存時にエラーが発生しました。');
+      } else {
+        alert('保存しました。');
+        STORY.action.go('./room.edit.html', [],
+          {mode: 'edit', room: $('input[name="room[name]"]').val()});
+      }
+    });
+    return false;
+  });
+
+  // 更新処理
+  $('#doUpdate').click(function() {
+    STORY.jsonp.put('../room/:room[name]?callback=?', {
+        'room[name]': $('input[name="room[name]"]').val(),
+        'room[desc]': $('input[name="room[desc]"]').val()
+      }, function(err) {
+      if (err) {
+        alert('保存時にエラーが発生しました。');
+      } else {
+        alert('保存しました。');
+        STORY.action.go('./room.edit.html', [],
+          {mode: 'edit', room: $('input[name="room[name]"]').val()});
+      }
+    });
+    return false;
+  });
+
+  // 削除処理
+  $('#doDelete').click(function() {
+    var result = confirm('削除します。');
+    if (!result) return false;
+    STORY.jsonp.del('../room/:room[name]?callback=?', {
+        'room[name]': $('input[name="room[name]"]').val()
+      }, function(err) {
+      if (err) {
+        alert('削除時にエラーが発生しました。');
+      } else {
+        alert('削除しました。');
+        STORY.action.go('./index.html',[]);
+      }
+    });
+    return false;
+  });
+
+  // 初期表示
+  TANGOLE.menu.apply();
+  var mode = STORY.url.getVar('mode');
+
+  // 登録初期表示
+  if (mode === 'new') {
+    $('#actionTitle').text('New Room');
+    $('#actionDesc').text('新しいROOMを作成します');
+    $('#doUpdate').hide();
+    $('#doDelete').hide();
+    $('#menuGive').hide();
+    $('#menuTake').hide();
+  }
+
+  // 更新初期表示
+  var setEditRoom = function(room) {
+    $('input[name="room[name]"]').val(room.name);
+    $('input[name="room[name]"]').attr('disabled', true);
+    $('input[name="room[desc]"]').val(room.desc);
+  };
+  if (mode === 'edit') {
+    $('#actionTitle').text('Edit Room');
+    $('#actionDesc').text('ROOM情報を編集します');
+    $('#doInsert').hide();
+    // ルーム表示
+    STORY.jsonp.get('../room/:room[name]?callback=?', {
+        'room[name]': STORY.url.getVar('room')
+      }, setEditRoom);
+  }
+});
+</script>
+</body>
+</html>

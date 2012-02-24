@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>Tangole</title>
+<link href="../stylesheets/style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../javascripts/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="../javascripts/jquery.json-2.3.min.js"></script>
+<script type="text/javascript" src="../javascripts/jquery.tagcanvas.min.js"></script>
+<script type="text/javascript" src="../javascripts/story.js"></script>
+<script type="text/javascript" src="../javascripts/story.jsonp.js"></script>
+<script type="text/javascript" src="../javascripts/tangole.js"></script>
+<!--[if lt IE 9]>
+<script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+</head>
+<body id="page">
+<h1 id="roomName">room name</h1>
+
+<header>
+  <p id="title">気になる単語はなんですか - Tangole</p>
+</header>
+
+<article id="note">
+  <h2 id="roomDesc">about this room</h2>
+<p>
+<from id="inputWords">
+  <input type="text" name="tag[words][0]" value="" class="middle" maxlength="20">
+  <input type="text" name="tag[words][1]" value="" class="middle" maxlength="20">
+  <input type="text" name="tag[words][2]" value="" class="middle" maxlength="20">
+  <input type="text" name="tag[words][3]" value="" class="middle" maxlength="20">
+  <input type="text" name="tag[words][4]" value="" class="middle" maxlength="20">
+  <input type="text" name="tag[words][5]" value="" class="middle" maxlength="20">
+  <br>
+  <input type="submit" value="気になる単語です" id="doInsert">
+</form>
+</p>
+<div id="tagCanvasContainer">
+  <canvas width="500" height="300" id="tagCanvas">
+    <p>Anything in here will be replaced on browsers that support the canvas element</p>
+  </canvas>
+</div>
+<div id="tags">
+  <ul>
+  </ul>
+</div>
+</article>
+<nav>
+  <ul>
+    <li>- </li>
+    <li id="menuTop"><a href="./index.html">TOP</a> -</li>
+    <li id="menuTake"><a href="./take.html">TAKE</a> -</li>
+    <li id="menuRoomEdit"><a href="./room.edit.html">Edit ROOM</a> -</li>
+  </ul>
+</nav>
+<script type="text/javascript">
+$(document).ready(function() {
+  // 登録処理
+  $('#doInsert').click(function() {
+    STORY.jsonp.post('../words/:room[name]?callback=?', {
+        'room[name]': STORY.url.getVar('room'),
+        'tag[words][0]': $('input[name="tag[words][0]"]').val(), 
+        'tag[words][1]': $('input[name="tag[words][1]"]').val(), 
+        'tag[words][2]': $('input[name="tag[words][2]"]').val(), 
+        'tag[words][3]': $('input[name="tag[words][3]"]').val(), 
+        'tag[words][4]': $('input[name="tag[words][4]"]').val(), 
+        'tag[words][5]': $('input[name="tag[words][5]"]').val(), 
+      }, function(err) {
+      if (err) {
+        alert('保存時にエラーが発生しました。');
+      } else {
+        alert('保存しました。');
+        STORY.action.go('./give.html', ['room']);
+      }
+      return false;
+    });
+  });
+
+  // 初期表示
+  TANGOLE.menu.apply();
+
+  // ルーム表示
+  var setRoom = function(room) {
+    $('#roomName').text(room.name);
+    $('#roomDesc').text(room.desc);
+  }
+  STORY.jsonp.get('../room/:room[name]?callback=?', {
+      'room[name]': STORY.url.getVar('room')
+    }, setRoom);
+
+  // タグワード表示
+  var setWord = function($tags, word) {
+    var $li = $('<li/>');
+    var $a = $('<a/>');
+    $a.attr('data-weight', word.weight);
+    $a.attr('href', '#');
+    $a.click(function() {
+      TANGOLE.input.selectWord(this.text);
+      return false;
+    });
+    $a.text(word.name);
+    $tags.append($li.append($a));
+  };
+  var setWords = function(words) {
+    var $tags = $('#tags > ul');
+    $tags.empty();
+    $.each(words, function(i, word) {
+      setWord($tags, word);
+    });
+
+    // タグクラウド表示
+    if (!$('#tagCanvas').tagcanvas({
+      textColour: '#ff0000',
+      outlineColour: '#e6e6fa',
+      reverse: true,
+      depth: 0.8,
+      maxSpeed: 0.03,
+      weight: true,
+      weightFrom: 'data-weight'
+    }, 'tags')) {
+      $('#tagCanvasContainer').hide();
+    }
+  };
+  STORY.jsonp.get('../words/:room[name]?callback=?', {
+     'room[name]': STORY.url.getVar('room')
+    }, setWords);
+});
+</script>
+</body>
+</html>

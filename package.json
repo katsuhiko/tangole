@@ -1,0 +1,16 @@
+{
+    "name": "tangole"
+  , "version": "0.0.1"
+  , "private": true
+  , "author": "Katsuhiko Nagashima <katsuhiko.nagashima@gmail.com>"
+  , "dependencies": {
+      "express": "2.5.x"
+    , "ejs": ">= 0.0.1"
+    , "mongoose": "2.5.x"
+    , "async": "*"
+  }
+  , "devDependencies": {
+      "mocha": "*"
+    , "should": "*"
+  }
+}
