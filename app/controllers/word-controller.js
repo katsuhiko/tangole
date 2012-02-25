@@ -1,10 +1,11 @@
-var async = require('async');
+var async = require('async'),
+    arrays = require('../utils/arrays');
 /**
  * Dependencies Model.
  */
-var Room = mongoose.model('Room')
-  , Word = mongoose.model('Word')
-  , Tag = mongoose.model('Tag');
+var Room = mongoose.model('Room'),
+    Word = mongoose.model('Word'),
+    Tag = mongoose.model('Tag');
 
 module.exports = function(app) {
   // Find room
@@ -38,14 +39,7 @@ module.exports = function(app) {
         });
       });
       return tangoMap;
-    },
-        makeTangos = function(tangosMap) {
-          var tangos = [];
-          Object.keys(tangosMap).forEach(function(name, i) {
-            tangos[i] = {name: name, weight: tangosMap[name]};
-          });
-          return tangos;
-        };
+    };
     //
     async.parallel({
       words: function(callback) {
@@ -67,37 +61,40 @@ module.exports = function(app) {
     }, function(err, results) {
       if (err) throw err;
       var tangoMap = makeTangoMap(results.words, results.tags);
-      var tangos = makeTangos(tangoMap);
+      var tagTangos = arrays.fromMap(tangoMap, 'name', 'weight');
       //
-      res.send(tangos);
+      res.send(tagTangos);
     });
   });
 
   // Create
   app.post('/words/:name', function(req, res) {
+    var tangos = arrays.unique(req.body.tag.words);
+    tangos = tangos.filter(function(el) { return el.length !== 0; });
     async.parallel({
       word: function(callback) {
-        req.body.tag.words.forEach(function(w, i) {
-          if (w.length !== 0) {
-            Word.findOne({'name': req.room.name, 'word': w}, function(err, word) {
-              if (err) throw err;
-              if (!word) {
-                word = new Word();
-                word.name = req.room.name;
-                word.word = w;
-                word.save(function(err) {
-                  throw err;
-                });
-              }
-            });
-          }
+        tangos.forEach(function(tango, i) {
+          Word.findOne({
+            'name': req.room.name,
+            'word': tango
+          }, function(err, word) {
+            if (err) throw err;
+            if (!word) {
+              word = new Word();
+              word.name = req.room.name;
+              word.word = tango;
+              word.save(function(err) {
+                throw err;
+              });
+            }
+          });
         });
         callback(null);
       },
       tag: function(callback) {
         var tag = new Tag();
         tag.name = req.room.name;
-        tag.words = req.body.tag.words;
+        tag.words = tangos;
         tag.save(function(err) {
           callback(err);
         });
