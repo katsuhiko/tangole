@@ -74,19 +74,12 @@ module.exports = function(app) {
     async.parallel({
       word: function(callback) {
         tangos.forEach(function(tango, i) {
-          Word.findOne({
-            'name': req.room.name,
-            'word': tango
-          }, function(err, word) {
-            if (err) throw err;
-            if (!word) {
-              word = new Word();
-              word.name = req.room.name;
-              word.word = tango;
-              word.save(function(err) {
-                throw err;
-              });
-            }
+          var word = new Word({
+            name: req.room.name,
+            word: tango
+          });
+          word.saveIfNotExists(function(err) {
+            throw err;
           });
         });
         callback(null);
