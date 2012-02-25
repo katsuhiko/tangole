@@ -21,7 +21,32 @@ module.exports = function(app) {
 
   // List
   app.get('/words/:name', function(req, res) {
-    var tagWords = {};
+    var makeTangoMap = function(words, tags) {
+      var tangoMap = {};
+      words.forEach(function(word, i) {
+        tangoMap[word.word] = 1;
+      });
+      //
+      tags.forEach(function(tag, i) {
+        tag.words.forEach(function(word, i) {
+          if (word.length !== 0) {
+            if (!tangoMap[word]) {
+              tangoMap[word] = 1;
+            }
+            tangoMap[word] += tag.weight;
+          }
+        });
+      });
+      return tangoMap;
+    },
+        makeTangos = function(tangosMap) {
+          var tangos = [];
+          Object.keys(tangosMap).forEach(function(name, i) {
+            tangos[i] = {name: name, weight: tangosMap[name]};
+          });
+          return tangos;
+        };
+    //
     async.parallel({
       words: function(callback) {
         var where = {};
@@ -41,26 +66,10 @@ module.exports = function(app) {
       }
     }, function(err, results) {
       if (err) throw err;
-      results.words.forEach(function(word, i) {
-        tagWords[word.word] = 1;
-      });
+      var tangoMap = makeTangoMap(results.words, results.tags);
+      var tangos = makeTangos(tangoMap);
       //
-      results.tags.forEach(function(tag, i) {
-        tag.words.forEach(function(word, i) {
-          if (word.length !== 0) {
-            if (!tagWords[word]) {
-              tagWords[word] = 1;
-            }
-            tagWords[word] += tag.weight;
-          }
-        });
-      });
-      //
-      var result = [];
-      Object.keys(tagWords).forEach(function(name, i) {
-        result[i] = {name: name, weight: tagWords[name]};
-      });
-      res.send(result);
+      res.send(tangos);
     });
   });
 
