@@ -69,20 +69,24 @@ module.exports = function(app) {
 
   // Create
   app.post('/words/:name', function(req, res) {
+    // 同じ単語と空文字列は登録しない
     var tangos = arrays.unique(req.body.tag.words);
-    tangos = tangos.filter(function(el) { return el.length !== 0; });
+    tangos = tangos.filter(function(el) {
+      return el.length !== 0;
+    });
     async.parallel({
       word: function(callback) {
-        tangos.forEach(function(tango, i) {
+        async.forEach(tangos, function(tango, next) {
           var word = new Word({
             name: req.room.name,
             word: tango
           });
           word.saveIfNotExists(function(err) {
-            throw err;
+            next(err);
           });
+        }, function(err) {
+          callback(err);
         });
-        callback(null);
       },
       tag: function(callback) {
         var tag = new Tag();
