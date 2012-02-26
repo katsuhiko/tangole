@@ -1,25 +1,24 @@
 var fromMap = function(map, keyName, valueName) {
   var result = [],
-      el;
-  Object.keys(map).forEach(function(key, i) {
-    el = {};
-    el[keyName] = key;
-    el[valueName] = map[key];
-    result.push(el);
+      item;
+  Object.keys(map).forEach(function(key) {
+    item = {};
+    item[keyName] = key;
+    item[valueName] = map[key];
+    result.push(item);
   });
   return result;
 };
 
 var unique = function(array) {
-  var storage = {},
-      result = [];
-  array.forEach(function(value, i) {
-    if (!(value in storage)) {
-      storage[value] = true;
-      result.push(value);
+  var storage = {};
+  return array.filter(function(item) {
+    if (!(item in storage)) {
+      storage[item] = true;
+      return true;
     }
+    return false;
   });
-  return result;
 };
 
 module.exports = {

@@ -1,5 +1,6 @@
 var async = require('async'),
     arrays = require('../utils/arrays');
+
 /**
  * Dependencies Model.
  */
@@ -71,8 +72,8 @@ module.exports = function(app) {
   app.post('/words/:name', function(req, res) {
     // 同じ単語と空文字列は登録しない
     var tangos = arrays.unique(req.body.tag.words);
-    tangos = tangos.filter(function(el) {
-      return el.length !== 0;
+    tangos = tangos.filter(function(tango) {
+      return tango.length !== 0;
     });
     async.parallel({
       word: function(callback) {
@@ -89,9 +90,10 @@ module.exports = function(app) {
         });
       },
       tag: function(callback) {
-        var tag = new Tag();
-        tag.name = req.room.name;
-        tag.words = tangos;
+        var tag = new Tag({
+          name: req.room.name,
+          words: tangos
+        });
         tag.save(function(err) {
           callback(err);
         });
