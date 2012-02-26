@@ -21,6 +21,7 @@ WordSchema.methods.saveIfNotExists = function(callback) {
     }
     if (!word) {
       obj.save(callback);
+      return;
     }
     callback();
   });

@@ -3,30 +3,25 @@ require('../db-connect.js');
 require('../app/models/room');
 
 describe('Room', function() {
-  var Room = mongoose.model('Room');
-  var data = {};
+  var Room = mongoose.model('Room'),
+      data = {};
 
   before(function(done) {
     // テストデータの登録
     Room.create([
-      {name: 'test1', desc: 'desc test1',
-       roomkey: 'room1', givekey: 'give1', takekey: 'take1' },
-      {name: 'test2', desc: 'desc test2',
-       roomkey: 'room2', givekey: 'give2', takekey: 'take2' }
+      { name: 'test1', desc: 'desc test1' },
+      { name: 'test2', desc: 'desc test2' }
     ], function(err) {
       done();
     });
   });
 
   beforeEach(function() {
-    data = {
-      name: 'testX', desc: 'desc testX',
-      roomkey: 'roomX', givekey: 'giveX', takekey: 'takeX'
-    };
+    data = { name: 'testX', desc: 'desc testX' };
   });
 
   afterEach(function(done) {
-    Room.remove({name : 'testX'}, function(err) {
+    Room.remove({ name: 'testX' }, function(err) {
       done();
     });
   });

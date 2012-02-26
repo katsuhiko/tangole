@@ -7,10 +7,7 @@ var RoomSchema = new Schema({
            match: /^[a-zA-Z0-9]*$/,
            index: { unique: true }
          },
-  desc: String,
-  roomkey: String,
-  givekey: String,
-  takekey: String
+  desc: String
 });
 
 mongoose.model('Room', RoomSchema);
