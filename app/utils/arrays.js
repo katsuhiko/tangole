@@ -21,7 +21,16 @@ var unique = function(array) {
   });
 };
 
+var detect = function(array, detector) {
+  var result = array.filter(detector);
+  if (result.length === 0) {
+    return null;
+  }
+  return result[0];
+};
+
 module.exports = {
   fromMap: fromMap,
-  unique: unique
+  unique: unique,
+  detect: detect
 };

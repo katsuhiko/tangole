@@ -48,4 +48,23 @@ describe('Arrays', function() {
     });
   });
 
+  describe('#detect', function() {
+    it('該当する要素を1件取得できること', function() {
+      var actual = arrays.detect(
+        [1, 4, 6, 10],
+        function(item) {
+          return item === 4;
+        });
+      actual.should.equal(4);
+    });
+    it('存在しない場合nullが返却されること', function() {
+      var actual = arrays.detect(
+        [1, 4, 6, 10],
+        function(item) {
+          return item === 5;
+        });
+      should.not.exist(actual);
+    });
+  });
+
 });
