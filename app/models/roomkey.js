@@ -1,7 +1,7 @@
 /**
  * Module dependencies.
  */
-var crypto = require('crypto'),
+var keywords = require('../utils/keywords'),
     arrays = require('../utils/arrays');
 
 /**
@@ -43,10 +43,7 @@ RoomKeySchema.statics.authenticate = function(name, location, hexKeyword, salt, 
       return;
     }
     //
-    var shasum = crypto.createHash('sha256');
-    shasum.update(salt + ':' + key.keyword, 'utf8');
-    var expect = shasum.digest('hex');
-    //
+    var expect = keywords.hash(key.keyword, salt);
     callback(null, hexKeyword === expect);
   });
 };

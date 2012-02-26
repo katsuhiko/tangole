@@ -1,5 +1,5 @@
 var should = require('should'),
-    crypto = require('crypto');
+    keywords = require('../app/utils/keywords');
 require('../db-connect.js');
 require('../app/models/roomkey');
 
@@ -30,9 +30,7 @@ describe('RoomKey', function() {
       var location = 'a';
       var salt = 'abc';
       var keyword = 'key1';
-      var shasum = crypto.createHash('sha256');
-      shasum.update(salt + ':' + keyword, 'utf8');
-      var hexKeyword = shasum.digest('hex');
+      var hexKeyword = keywords.hash(keyword, salt);
 
       RoomKey.authenticate(
         name, location, hexKeyword, salt,
@@ -46,9 +44,7 @@ describe('RoomKey', function() {
       var location = 'a';
       var salt = 'abc';
       var keyword = 'key2';
-      var shasum = crypto.createHash('sha256');
-      shasum.update(salt + ':' + keyword, 'utf8');
-      var hexKeyword = shasum.digest('hex');
+      var hexKeyword = keywords.hash(keyword, salt);
 
       RoomKey.authenticate(
         name, location, hexKeyword, salt,
