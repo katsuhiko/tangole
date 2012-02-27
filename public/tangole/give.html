@@ -65,7 +65,7 @@ $(document).ready(function() {
         'tag[words][2]': $('input[name="tag[words][2]"]').val(), 
         'tag[words][3]': $('input[name="tag[words][3]"]').val(), 
         'tag[words][4]': $('input[name="tag[words][4]"]').val(), 
-        'tag[words][5]': $('input[name="tag[words][5]"]').val(), 
+        'tag[words][5]': $('input[name="tag[words][5]"]').val()
       }, function(err) {
       if (err) {
         alert('保存時にエラーが発生しました。');
@@ -77,54 +77,26 @@ $(document).ready(function() {
     });
   });
 
-  // 初期表示
-  TANGOLE.menu.apply();
+  // 単語入力処理
+  $('#inputWords > input[type=text]').change(function() {
+    TANGOLE.output.tagWordsForGive();
+  });
 
   // ルーム表示
-  var setRoom = function(room) {
-    $('#roomName').text(room.name);
-    $('#roomDesc').text(room.desc);
-  }
-  STORY.jsonp.get('../room/:room[name]?callback=?', {
-      'room[name]': STORY.url.getVar('room')
-    }, setRoom);
-
-  // タグワード表示
-  var setWord = function($tags, word) {
-    var $li = $('<li/>');
-    var $a = $('<a/>');
-    $a.attr('data-weight', word.weight);
-    $a.attr('href', '#');
-    $a.click(function() {
-      TANGOLE.input.selectWord(this.text);
-      return false;
-    });
-    $a.text(word.name);
-    $tags.append($li.append($a));
-  };
-  var setWords = function(words) {
-    var $tags = $('#tags > ul');
-    $tags.empty();
-    $.each(words, function(i, word) {
-      setWord($tags, word);
-    });
-
-    // タグクラウド表示
-    if (!$('#tagCanvas').tagcanvas({
-      textColour: '#ff0000',
-      outlineColour: '#e6e6fa',
-      reverse: true,
-      depth: 0.8,
-      maxSpeed: 0.03,
-      weight: true,
-      weightFrom: 'data-weight'
-    }, 'tags')) {
-      $('#tagCanvasContainer').hide();
+  var outputRoom = function() {
+    var setRoom = function(room) {
+      $('#roomName').text(room.name);
+      $('#roomDesc').text(room.desc);
     }
+    STORY.jsonp.get('../room/:room[name]?callback=?', {
+        'room[name]': STORY.url.getVar('room')
+      }, setRoom);
   };
-  STORY.jsonp.get('../words/:room[name]?callback=?', {
-     'room[name]': STORY.url.getVar('room')
-    }, setWords);
+
+  // 初期表示
+  TANGOLE.menu.apply();
+  outputRoom();
+  TANGOLE.output.tagWordsForGive();
 });
 </script>
 </body>

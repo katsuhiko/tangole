@@ -41,7 +41,36 @@ module.exports = function(app) {
       });
       return tangoMap;
     };
+    var calcTangoWeight = function(tangoMap) {
+      var total = 0;
+      Object.keys(tangoMap).forEach(function(key) {
+        total += tangoMap[key];
+      });
+      var average = total / Object.keys(tangoMap).length;
+      var deviationTotal = 0;
+      Object.keys(tangoMap).forEach(function(key) {
+        deviationTotal += Math.pow((tangoMap[key] - average), 2);
+      });
+      var stdDeviation = Math.sqrt(deviationTotal / Object.keys(tangoMap).length);
+      if (stdDeviation === 0) {
+        stdDeviation = 1;
+      }
+      Object.keys(tangoMap).forEach(function(key) {
+        var weight = tangoMap[key];
+        weight = Math.round((20 * (weight - average)) / stdDeviation + 30);
+        weight = Math.max(weight, 10);
+        tangoMap[key] = weight;
+      });
+      return tangoMap;
+    };
     //
+    var tangos = [];
+    if (req.query.tag) {
+      tangos = arrays.unique(req.query.tag.words);
+      tangos = tangos.filter(function(tango) {
+        return tango.length !== 0;
+      });
+    }
     async.parallel({
       words: function(callback) {
         var where = {};
@@ -54,6 +83,9 @@ module.exports = function(app) {
       tags: function(callback) {
         var where = {};
         where.name = req.room.name;
+        if (tangos.length !== 0) {
+          where.words = { $all: tangos };
+        }
         Tag.find(where)
           .run(function(err, tags) {
             callback(err, tags);
@@ -62,6 +94,7 @@ module.exports = function(app) {
     }, function(err, results) {
       if (err) throw err;
       var tangoMap = makeTangoMap(results.words, results.tags);
+      tangoMap = calcTangoWeight(tangoMap);
       var tagTangos = arrays.fromMap(tangoMap, 'name', 'weight');
       //
       res.send(tagTangos);
