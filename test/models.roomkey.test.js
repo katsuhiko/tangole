@@ -26,28 +26,34 @@ describe('RoomKey', function() {
 
   describe('#authenticate', function() {
     it('許可されること', function(done) {
-      var name = 'test1';
-      var location = 'a';
-      var salt = 'abc';
-      var keyword = 'key1';
-      var hexKeyword = keywords.hash(keyword, salt);
+      var keyword = 'key1',
+          salt = 'abc',
+          auth = {
+            name: 'test1',
+            location: 'a',
+            salt: salt,
+            hexKeyword: keywords.hash(keyword, salt)
+          };
 
       RoomKey.authenticate(
-        name, location, hexKeyword, salt,
+        auth,
         function(err, allowed) {
           allowed.should.equal(true);
           done();
         });
     });
     it('不許可されること', function(done) {
-      var name = 'test1';
-      var location = 'a';
-      var salt = 'abc';
-      var keyword = 'key2';
-      var hexKeyword = keywords.hash(keyword, salt);
+      var keyword = 'key2',
+          salt = 'abc',
+          auth = {
+            name: 'test1',
+            location: 'a',
+            salt: salt,
+            hexKeyword: keywords.hash(keyword, salt)
+          };
 
       RoomKey.authenticate(
-        name, location, hexKeyword, salt,
+        auth,
         function(err, allowed) {
           allowed.should.equal(false);
           done();
