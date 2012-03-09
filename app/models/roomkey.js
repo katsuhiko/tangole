@@ -21,7 +21,7 @@ var RoomKeySchema = new Schema({
   keys: [Keys]
 });
 
-RoomKeySchema.statics.authenticate = function(auth, callback) {
+RoomKeySchema.statics.authenticate = function(auth, salt, callback) {
   this.model('RoomKey').findOne({
     name: auth.name
   }, function(err, roomKey) {
@@ -43,7 +43,7 @@ RoomKeySchema.statics.authenticate = function(auth, callback) {
       return;
     }
     //
-    var expect = keywords.hash(key.keyword, auth.salt);
+    var expect = keywords.hash(key.keyword, salt);
     callback(null, auth.hexKeyword === expect);
   });
 };

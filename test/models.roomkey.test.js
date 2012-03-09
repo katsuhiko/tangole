@@ -31,12 +31,11 @@ describe('RoomKey', function() {
           auth = {
             name: 'test1',
             location: 'a',
-            salt: salt,
             hexKeyword: keywords.hash(keyword, salt)
           };
 
       RoomKey.authenticate(
-        auth,
+        auth, salt,
         function(err, allowed) {
           allowed.should.equal(true);
           done();
@@ -48,12 +47,11 @@ describe('RoomKey', function() {
           auth = {
             name: 'test1',
             location: 'a',
-            salt: salt,
             hexKeyword: keywords.hash(keyword, salt)
           };
 
       RoomKey.authenticate(
-        auth,
+        auth, salt,
         function(err, allowed) {
           allowed.should.equal(false);
           done();
