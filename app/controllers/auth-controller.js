@@ -7,8 +7,13 @@ var authUtil = require('../utils/auth-util');
 module.exports = function(app) {
   // Authenticate
   app.post('/auth', function(req, res) {
-    var auth = req.auth;
+    var auth = req.body.auth;
+console.log(auth);
     var salt = authUtil.getSalt(req.session, auth);
+    if (!salt) {
+      res.send(authUtil.ng(req.session, auth));
+      return;
+    }
     RoomKey.authenticate(
       auth, salt,
       function(err, allowed) {
