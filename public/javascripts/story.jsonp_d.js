@@ -17,7 +17,10 @@ STORY.jsonp = (function($, g) {
       { name: '入門', weight: 50},
       { name: '基礎', weight: 10},
       { name: 'Coding', weight: 30}
-    ]
+    ],
+    '../roomkey/:room[name]/exists?callback=?': {
+      exists: false
+    }
   },
       get = function(url, params, callback) {
         callback(s[url]);

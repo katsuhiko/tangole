@@ -8,6 +8,7 @@
 <script type="text/javascript" src="../javascripts/jquery-1.7.1.js"></script>
 <script type="text/javascript" src="../javascripts/jquery.json-2.3.js"></script>
 <script type="text/javascript" src="../javascripts/jquery.tagcanvas.min.js"></script>
+<script type="text/javascript" src="../javascripts/webtoolkit.sha256.js"></script>
 <script type="text/javascript" src="../javascripts/story.js"></script>
 <script type="text/javascript" src="../javascripts/story.jsonp.js"></script>
 <script type="text/javascript" src="../javascripts/tangole.js"></script>
@@ -41,6 +42,8 @@
         <input type="button" value="Save" id="doInsert">
         <input type="button" value="Save" id="doUpdate">
         <input type="button" value="Delete" id="doDelete">
+        <input type="button" value="Add Key" id="doAddKey">
+        <input type="button" value="Remove Key" id="doRemoveKey">
       </td>
     </tr>
   </table>
@@ -106,6 +109,46 @@ $(document).ready(function() {
     return false;
   });
 
+  // Key追加処理
+  $('#doAddKey').click(function() {
+    var keyword = prompt('ROOMを編集するときのKeywordを入力してください。', '');
+    if (keyword === null || keyword.length === 0) return false;
+    var name = $('input[name="room[name]"]').val();
+    var location = 'room';
+    var hexKeyword = SHA256([ name, location, keyword ].join(':'));
+    STORY.jsonp.post('../roomkey/:key[name]?callback?', {
+        'key[name]': name,
+        'key[location]': location,
+        'key[keyword]': hexKeyword
+      }, function(err) {
+      if (err) {
+        alert('保存時にエラーが発生しました。');
+      } else {
+        $('#doAddKey').hide();
+        $('#doRemoveKey').show();
+      }
+    });
+    return false;
+  });
+
+  // Key削除処理
+  $('#doRemoveKey').click(function() {
+    var result = confirm('Keywordを削除すると誰でもこの部屋を編集できるようになります。');
+    if (!result) return false;
+    STORY.jsonp.del('../roomkey/:key[name]?callback=?', {
+        'key[name]': $('input[name="room[name]"]').val(),
+        'key[location]': 'room'
+      }, function(err) {
+      if (err) {
+        alert('削除時にエラーが発生しました。');
+      } else {
+        $('#doAddKey').show();
+        $('#doRemoveKey').hide();
+      }
+    });
+    return false;
+  });
+
   // 初期表示
   TANGOLE.menu.apply();
   var mode = STORY.url.getVar('mode');
@@ -116,6 +159,8 @@ $(document).ready(function() {
     $('#actionDesc').text('新しいROOMを作成します');
     $('#doUpdate').hide();
     $('#doDelete').hide();
+    $('#doAddKey').hide();
+    $('#doRemoveKey').hide();
     $('#menuGive').hide();
     $('#menuTake').hide();
   }
@@ -134,6 +179,16 @@ $(document).ready(function() {
     STORY.jsonp.get('../room/:room[name]?callback=?', {
         'room[name]': STORY.url.getVar('room')
       }, setEditRoom);
+    STORY.jsonp.get('../roomkey/:key[name]/exists?callback=?', {
+        'key[name]': STORY.url.getVar('room'),
+        'key[location]': 'room'
+      }, function(key) {
+        if (key.exists) {
+          $('#doAddKey').hide();
+        } else {
+          $('#doRemoveKey').hide();
+        }
+      });
   }
 });
 </script>

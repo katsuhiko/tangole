@@ -17,6 +17,17 @@ module.exports = function(app) {
     });
   });
 
+  // Exists
+  app.get('/roomkey/:name/exists', function(req, res) {
+    var key = req.query.key;
+    key.name = req.room.name;
+    RoomKey.existsKey(key, function(err, exists) {
+      res.send({
+        exists: exists
+      });
+    });
+  });
+
   // Create or Update
   app.post('/roomkey/:name', function(req, res) {
     var key = req.body.key;

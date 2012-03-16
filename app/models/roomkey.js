@@ -86,6 +86,32 @@ RoomKeySchema.statics.removeKey = function(obj, callback) {
   });
 };
 
+RoomKeySchema.statics.existsKey = function(obj, callback) {
+  var RoomKey = this.model('RoomKey');
+  RoomKey.findOne({
+    name: obj.name
+  }, function(err, roomKey) {
+    if (err) {
+      callback(err);
+      return;
+    }
+    if (!roomKey) {
+      callback(null, false);
+      return;
+    }
+    var key = arrays.detect(
+      roomKey.keys,
+      function(item) {
+        return item.location == obj.location;
+      });
+    if (!key) {
+      callback(null, false);
+      return;
+    }
+    callback(null, true);
+  });
+};
+
 RoomKeySchema.statics.authenticate = function(auth, salt, callback) {
   this.model('RoomKey').findOne({
     name: auth.name

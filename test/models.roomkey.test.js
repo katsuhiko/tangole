@@ -113,6 +113,39 @@ describe('RoomKey', function() {
     });
   });
 
+  describe('#existsKey', function() {
+    it('Key登録済みを確認できること', function(done) {
+      var key = {
+        name: 'test1',
+        location: 'a'
+      };
+      RoomKey.existsKey(key, function(err, exists) {
+        should.not.exist(err);
+        exists.should.equal(true);
+        done();
+      });
+    });
+    it('RoomKeyがない状態でKey未登録を確認できること', function(done) {
+      var key = {
+        name: 'test1',
+        location: 'b'
+      };
+      RoomKey.existsKey(key, function(err, exists) {
+        should.not.exist(err);
+        exists.should.equal(false);
+        done();
+      });
+    });
+    it('RoomKeyがある状態でKey未登録を確認できること', function(done) {
+      var key = data;
+      RoomKey.existsKey(key, function(err, exists) {
+        should.not.exist(err);
+        exists.should.equal(false);
+        done();
+      });
+    });
+  });
+
   describe('#authenticate', function() {
     it('許可されること', function(done) {
       var keyword = 'key1',
