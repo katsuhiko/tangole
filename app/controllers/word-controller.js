@@ -1,5 +1,5 @@
 var async = require('async'),
-    arrays = require('../utils/arrays');
+    tangoUtil = require('../utils/tango-util');
 
 /**
  * Dependencies Model.
@@ -23,53 +23,9 @@ module.exports = function(app) {
 
   // List
   app.get('/words/:name', function(req, res) {
-    var makeTangoMap = function(words, tags) {
-      var tangoMap = {};
-      words.forEach(function(word, i) {
-        tangoMap[word.word] = 1;
-      });
-      //
-      tags.forEach(function(tag, i) {
-        tag.words.forEach(function(word, i) {
-          if (word.length !== 0) {
-            if (!tangoMap[word]) {
-              tangoMap[word] = 1;
-            }
-            tangoMap[word] += tag.weight;
-          }
-        });
-      });
-      return tangoMap;
-    };
-    var calcTangoWeight = function(tangoMap) {
-      var total = 0;
-      Object.keys(tangoMap).forEach(function(key) {
-        total += tangoMap[key];
-      });
-      var average = total / Object.keys(tangoMap).length;
-      var deviationTotal = 0;
-      Object.keys(tangoMap).forEach(function(key) {
-        deviationTotal += Math.pow((tangoMap[key] - average), 2);
-      });
-      var stdDeviation = Math.sqrt(deviationTotal / Object.keys(tangoMap).length);
-      if (stdDeviation === 0) {
-        stdDeviation = 1;
-      }
-      Object.keys(tangoMap).forEach(function(key) {
-        var weight = tangoMap[key];
-        weight = Math.round((20 * (weight - average)) / stdDeviation + 30);
-        weight = Math.max(weight, 10);
-        tangoMap[key] = weight;
-      });
-      return tangoMap;
-    };
-    //
     var tangos = [];
     if (req.query.tag) {
-      tangos = arrays.unique(req.query.tag.words);
-      tangos = tangos.filter(function(tango) {
-        return tango.length !== 0;
-      });
+      tangos = tangoUtil.to(req.query.tag.words);
     }
     async.parallel({
       words: function(callback) {
@@ -93,9 +49,7 @@ module.exports = function(app) {
       }
     }, function(err, results) {
       if (err) throw err;
-      var tangoMap = makeTangoMap(results.words, results.tags);
-      tangoMap = calcTangoWeight(tangoMap);
-      var tagTangos = arrays.fromMap(tangoMap, 'name', 'weight');
+      var tagTangos = tangoUtil.toTagTangos(results.words, results.tags); 
       //
       res.send(tagTangos);
     });
@@ -103,11 +57,7 @@ module.exports = function(app) {
 
   // Create
   app.post('/words/:name', function(req, res) {
-    // 同じ単語と空文字列は登録しない
-    var tangos = arrays.unique(req.body.tag.words);
-    tangos = tangos.filter(function(tango) {
-      return tango.length !== 0;
-    });
+    var tangos = tangoUtil.to(req.body.tag.words);
     async.parallel({
       word: function(callback) {
         async.forEach(tangos, function(tango, next) {
