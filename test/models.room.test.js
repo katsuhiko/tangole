@@ -7,12 +7,13 @@ describe('Room', function() {
       data = {};
 
   before(function(done) {
-    // テストデータの登録
-    Room.create([
-      { name: 'test1', desc: 'desc test1' },
-      { name: 'test2', desc: 'desc test2' }
-    ], function(err) {
-      done();
+    Room.remove({}, function(err) {
+      Room.create([
+        { name: 'test1', desc: 'desc test1' },
+        { name: 'test2', desc: 'desc test2' }
+      ], function(err) {
+        done();
+      });
     });
   });
 
@@ -27,7 +28,6 @@ describe('Room', function() {
   });
 
   after(function(done) {
-    // テストデータの削除
     Room.remove({}, function(err) {
       done();
     });

@@ -5,6 +5,12 @@ require('../app/models/tag');
 describe('Tag', function() {
   var Tag = mongoose.model('Tag');
 
+  before(function(done) {
+    Tag.remove({}, function(err) {
+      done();
+    });
+  });
+
   after(function(done) {
     Tag.remove({}, function(err) {
       done();

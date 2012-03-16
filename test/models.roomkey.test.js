@@ -8,13 +8,14 @@ describe('RoomKey', function() {
       data = {};
 
   before(function(done) {
-    // テストデータの登録
-    RoomKey.create([
-      { name: 'test1',
-        keys: [ { location: 'a', keyword: 'key1'} ]
-      }
-    ], function(err) {
-      done();
+    RoomKey.remove({}, function(err) {
+      RoomKey.create([
+        { name: 'test1',
+          keys: [ { location: 'a', keyword: 'key1'} ]
+        }
+      ], function(err) {
+        done();
+      });
     });
   });
 

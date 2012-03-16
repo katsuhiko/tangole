@@ -7,11 +7,12 @@ describe('Word', function() {
       data = {};
 
   before(function(done) {
-    // テストデータの登録
-    Word.create([
-      { name: 'test1', word: 'coding1' }
-    ], function(err) {
-      done();
+    Word.remove({}, function(err) {
+      Word.create([
+        { name: 'test1', word: 'coding1' }
+      ], function(err) {
+        done();
+      });
     });
   });
 
