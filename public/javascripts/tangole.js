@@ -46,7 +46,7 @@ TANGOLE.input = (function($, g) {
 
 TANGOLE.output = (function($, g) {
   var utils = TANGOLE.utils,
-      tagWordsForGive = function() {
+      tagWords = function(options, callback) {
         var setWord = function($tags, word) {
           if (utils.existsWord(word.name)) {
             return;
@@ -58,7 +58,7 @@ TANGOLE.output = (function($, g) {
           $a.attr('href', '#');
           $a.click(function() {
             TANGOLE.input.selectWord(this.text);
-            TANGOLE.output.tagWordsForGive();
+            callback();
             return false;
           });
           $a.text(word.name);
@@ -72,15 +72,7 @@ TANGOLE.output = (function($, g) {
           });
 
           // タグクラウド表示
-          if (!$('#tagCanvas').tagcanvas({
-            textColour: '#ff0000',
-            outlineColour: '#e6e6fa',
-            reverse: true,
-            depth: 0.8,
-            maxSpeed: 0.03,
-            weight: true,
-            weightFrom: 'data-weight'
-          }, 'tags')) {
+          if (!$('#tagCanvas').tagcanvas(options, 'tags')) {
             $('#tagCanvasContainer').hide();
           }
         };
@@ -93,10 +85,37 @@ TANGOLE.output = (function($, g) {
           'tag[words][4]': $('input[name="tag[words][4]"]').val(),
           'tag[words][5]': $('input[name="tag[words][5]"]').val()
         }, setWords);
+      },
+      tagWordsForGive = function() {
+        tagWords({
+          textColour: '#ff0000',
+          outlineColour: '#e6e6fa',
+          reverse: true,
+          depth: 0.8,
+          maxSpeed: 0.03,
+          weight: true,
+          weightFrom: 'data-weight'
+        }, function() {
+          tagWordsForGive();
+        });
+      },
+      tagWordsForTake = function() {
+        tagWords({
+          textColour: '#00ff00',
+          outlineColour: '#e6e6fa',
+          reverse: true,
+          depth: 0.8,
+          maxSpeed: 0.03,
+          weight: true,
+          weightFrom: 'data-weight'
+        }, function() {
+          tagWordsForTake();
+        });
       };
   //
   return {
-    tagWordsForGive: tagWordsForGive
+    tagWordsForGive: tagWordsForGive,
+    tagWordsForTake: tagWordsForTake
   };
 })(jQuery, this);
 

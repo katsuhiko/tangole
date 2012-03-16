@@ -54,61 +54,34 @@
     <li id="menuRoomEdit"><a href="./room.edit.html">Edit ROOM</a> -</li>
   </ul>
 </nav>
-<script type="text/javascript">
+<script type="
+text/javascript">
 $(document).ready(function() {
   // 登録処理
   $('#doInsert').click(function() {
     alert('未作成です。。。');
   });
 
-  // 初期表示
-  TANGOLE.menu.apply();
+  // 単語入力処理
+  $('#inputWords > input[type=text]').change(function() {
+    TANGOLE.output.tagWordsForTake();
+  });
 
   // ルーム表示
-  var setRoom = function(room) {
-    $('#roomName').text(room.name);
-    $('#roomDesc').text(room.desc);
-  }
-  STORY.jsonp.get('../room/:room[name]?callback=?', {
-      'room[name]': STORY.url.getVar('room')
-    }, setRoom);
-
-  // タグワード表示
-  var setWord = function($tags, word) {
-    var $li = $('<li/>');
-    var $a = $('<a/>');
-    $a.attr('data-weight', word.weight);
-    $a.attr('href', '#');
-    $a.click(function() {
-      TANGOLE.input.selectWord(this.text);
-      return false;
-    });
-    $a.text(word.name);
-    $tags.append($li.append($a));
-  };
-  var setWords = function(words) {
-    var $tags = $('#tags > ul');
-    $tags.empty();
-    $.each(words, function(i, word) {
-      setWord($tags, word);
-    });
-
-    // タグクラウド表示
-    if (!$('#tagCanvas').tagcanvas({
-      textColour: '#00ff00',
-      outlineColour: '#e6e6fa',
-      reverse: true,
-      depth: 0.8,
-      maxSpeed: 0.03,
-      weight: true,
-      weightFrom: 'data-weight'
-    }, 'tags')) {
-      $('#tagCanvasContainer').hide();
+  var outputRoom = function() {
+    var setRoom = function(room) {
+      $('#roomName').text(room.name);
+      $('#roomDesc').text(room.desc);
     }
+    STORY.jsonp.get('../room/:room[name]?callback=?', {
+        'room[name]': STORY.url.getVar('room')
+      }, setRoom);
   };
-  STORY.jsonp.get('../words/:room[name]?callback=?', {
-     'room[name]': STORY.url.getVar('room')
-    }, setWords);
+
+  // 初期表示
+  TANGOLE.menu.apply();
+  outputRoom();
+  TANGOLE.output.tagWordsForTake();
 });
 </script>
 </body>
