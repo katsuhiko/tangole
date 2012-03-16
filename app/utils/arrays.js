@@ -29,8 +29,19 @@ var detect = function(array, detector) {
   return result[0];
 };
 
+var remove = function(array, detector) {
+  var result = [];
+  array.forEach(function(item) {
+    if (!detector(item)) {
+      result.push(item);
+    }
+  });
+  return result;
+};
+
 module.exports = {
   fromMap: fromMap,
   unique: unique,
-  detect: detect
+  detect: detect,
+  remove: remove
 };

@@ -29,9 +29,7 @@ describe('Arrays', function() {
         'abc'
       ]);
       actual.should.have.length(3);
-      actual.should.eql([
-        'test', 'unit', 'abc'
-      ]);
+      actual.should.eql(['test', 'unit', 'abc']);
     });
     it('空文字列の要素が削除されないこと', function() {
       var actual = arrays.unique([
@@ -42,9 +40,7 @@ describe('Arrays', function() {
         'abc'
       ]);
       actual.should.have.length(3);
-      actual.should.eql([
-        'test', '', 'abc'
-      ]);
+      actual.should.eql(['test', '', 'abc']);
     });
   });
 
@@ -64,6 +60,18 @@ describe('Arrays', function() {
           return item === 5;
         });
       should.not.exist(actual);
+    });
+  });
+
+  describe('#remove', function() {
+    it('該当する要素を削除できること', function() {
+      var actual = arrays.remove(
+        [1, 4, 6, 10],
+        function(item) {
+          return item === 4;
+        });
+      actual.should.have.length(3);
+      actual.should.eql([1, 6, 10]);
     });
   });
 
