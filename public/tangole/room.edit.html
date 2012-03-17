@@ -120,42 +120,32 @@ $(document).ready(function() {
 
   // Key追加処理
   $('#doAddKey').click(function() {
-    var keyword = prompt('「' + LOCATION + '」を入力してください。', '');
-    if (keyword === null || keyword.length === 0) return false;
     var name = $('input[name="room[name]"]').val();
-    var hexKeyword = TANGOLE.keywords.to(name, LOCATION, keyword);
-    TANGOLE.auth.login(name, LOCATION, STORY.jsonp.post, '../roomkey/:key[name]?callback=?', {
-        'key[name]': name,
-        'key[location]': LOCATION,
-        'key[keyword]': hexKeyword
-      }, function(err) {
-      if (err) {
-        alert('保存時にエラーが発生しました。');
-      } else {
-        $('#doAddKey').hide();
-        $('#doRemoveKey').show();
-      }
-    });
-    return false;
+    return TANGOLE.keywords.add(
+      name, LOCATION, LOCATION,
+      function(err) {
+        if (err) {
+          alert('保存時にエラーが発生しました。');
+        } else {
+          $('#doAddKey').hide();
+          $('#doRemoveKey').show();
+        }
+      });
   });
 
   // Key削除処理
   $('#doRemoveKey').click(function() {
-    var result = confirm('「' + LOCATION + '」を削除します。');
-    if (!result) return false;
     var name = $('input[name="room[name]"]').val();
-    TANGOLE.auth.login(name, LOCATION, STORY.jsonp.del, '../roomkey/:key[name]?callback=?', {
-        'key[name]': $('input[name="room[name]"]').val(),
-        'key[location]': LOCATION
-      }, function(err) {
-      if (err) {
-        alert('削除時にエラーが発生しました。');
-      } else {
-        $('#doAddKey').show();
-        $('#doRemoveKey').hide();
-      }
-    });
-    return false;
+    return TANGOLE.keywords.remove(
+      name, LOCATION, LOCATION,
+      function(err) {
+        if (err) {
+          alert('削除時にエラーが発生しました。');
+        } else {
+          $('#doAddKey').show();
+          $('#doRemoveKey').hide();
+        }
+      });
   });
 
   // 初期表示
@@ -184,15 +174,16 @@ $(document).ready(function() {
     $('#actionTitle').text('Edit Room');
     $('#actionDesc').text('ROOM情報を編集します');
     $('#doInsert').hide();
+    var name = STORY.url.getVar('room');
     // ルーム表示
     STORY.jsonp.get('../room/:room[name]?callback=?', {
-        'room[name]': STORY.url.getVar('room')
+        'room[name]': name
       }, setEditRoom);
-    STORY.jsonp.get('../roomkey/:key[name]/exists?callback=?', {
-        'key[name]': STORY.url.getVar('room'),
-        'key[location]': LOCATION
-      }, function(key) {
-        if (key.exists) {
+    // Key有無の表示
+    TANGOLE.keywords.exists(
+      name, LOCATION,
+      function(exists) {
+        if (exists) {
           $('#doAddKey').hide();
         } else {
           $('#doRemoveKey').hide();

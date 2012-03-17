@@ -125,11 +125,46 @@ TANGOLE.keywords = (function($, g) {
   },
       hash = function(keyword, salt) {
         return SHA256([ salt, keyword ].join(':'));
+      },
+      add = function(name, location, manageLocation, callback) {
+        var keyword = g.prompt('「' + location + '」を入力してください。', '');
+        if (keyword === null || keyword.length === 0) return false;
+        var hexKeyword = TANGOLE.keywords.to(name, location, keyword);
+        TANGOLE.auth.login(
+          name, manageLocation, STORY.jsonp.post,
+          '../roomkey/:key[name]?callback=?', {
+            'key[name]': name,
+            'key[location]': location,
+            'key[keyword]': hexKeyword
+          }, callback);
+        return false;
+      },
+      remove = function(name, location, manageLocation, callback) {
+        var result = g.confirm('「' + location + '」を削除します。');
+        if (!result) return false;
+        TANGOLE.auth.login(
+          name, manageLocation, STORY.jsonp.del,
+          '../roomkey/:key[name]?callback=?', {
+            'key[name]': $('input[name="room[name]"]').val(),
+            'key[location]': location
+          }, callback);
+        return false;
+      },
+      exists = function(name, location, callback) {
+        STORY.jsonp.get('../roomkey/:key[name]/exists?callback=?', {
+          'key[name]': name,
+          'key[location]': location
+        }, function(key) {
+          callback(key.exists);
+        });
       };
   //
   return {
     to: to,
-    hash: hash
+    hash: hash,
+    add: add,
+    remove: remove,
+    exists: exists
   };
 })(jQuery, this);
 

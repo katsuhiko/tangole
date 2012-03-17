@@ -8,6 +8,7 @@
 <script type="text/javascript" src="../javascripts/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="../javascripts/jquery.json-2.3.min.js"></script>
 <script type="text/javascript" src="../javascripts/jquery.tagcanvas.min.js"></script>
+<script type="text/javascript" src="../javascripts/webtoolkit.sha256.js"></script>
 <script type="text/javascript" src="../javascripts/story.js"></script>
 <script type="text/javascript" src="../javascripts/story.jsonp.js"></script>
 <script type="text/javascript" src="../javascripts/tangole.js"></script>
@@ -51,15 +52,47 @@
     <li>- </li>
     <li id="menuTop"><a href="./index.html">TOP</a> -</li>
     <li id="menuTake"><a href="./take.html">TAKE</a> -</li>
+    <li id="doGiveKey"><a href="#">KEYWORD</a> -</li>
     <li id="menuRoomEdit"><a href="./room.edit.html">Edit ROOM</a> -</li>
   </ul>
 </nav>
 <script type="text/javascript">
 $(document).ready(function() {
+  var ROOM_LOCATION = 'roomkey',
+      LOCATION = 'givekey';
+
+  // KEYWORD処理
+  $('#doGiveKey').click(function() {
+    var name = STORY.url.getVar('room');
+    TANGOLE.keywords.exists(
+      name, LOCATION,
+      function(exists) {
+        if (exists) {
+          TANGOLE.keywords.remove(
+            name, LOCATION, ROOM_LOCATION,
+            function(err) {
+              if (err) {
+                alert('削除時にエラーが発生しました。');
+              }
+            });
+        } else {
+          TANGOLE.keywords.add(
+            name, LOCATION, ROOM_LOCATION,
+            function(err) {
+              if (err) {
+                alert('保存時にエラーが発生しました。');
+              }
+            });
+        }
+      });
+    return false;
+  });
+
   // 登録処理
   $('#doInsert').click(function() {
-    STORY.jsonp.post('../words/:room[name]?callback=?', {
-        'room[name]': STORY.url.getVar('room'),
+    var name = STORY.url.getVar('room');
+    TANGOLE.auth.login(name, LOCATION, STORY.jsonp.post, '../words/:room[name]?callback=?', {
+        'room[name]': name,
         'tag[words][0]': $('input[name="tag[words][0]"]').val(), 
         'tag[words][1]': $('input[name="tag[words][1]"]').val(), 
         'tag[words][2]': $('input[name="tag[words][2]"]').val(), 

@@ -1,4 +1,8 @@
+/**
+ * Module dependencies.
+ */
 var async = require('async'),
+    authUtil = require('../utils/auth-util'),
     tangoUtil = require('../utils/tango-util');
 
 /**
@@ -9,6 +13,13 @@ var Room = mongoose.model('Room'),
     Tag = mongoose.model('Tag');
 
 module.exports = function(app) {
+  var auth = function(room) {
+    return {
+      name: room.name,
+      location: 'givekey'
+    };
+  };
+
   // Find room
   app.param('name', function(req, res, next, name) {
     Room.findOne({name: name}, function(err, room) {
@@ -57,33 +68,40 @@ module.exports = function(app) {
 
   // Create
   app.post('/words/:name', function(req, res) {
-    var tangos = tangoUtil.to(req.body.tag.words);
-    async.parallel({
-      word: function(callback) {
-        async.forEach(tangos, function(tango, next) {
-          var word = new Word({
-            name: req.room.name,
-            word: tango
-          });
-          word.saveIfNotExists(function(err) {
-            next(err);
-          });
-        }, function(err) {
-          callback(err);
-        });
+    authUtil.area(
+      req.session, auth(req.room),
+      function(allowed) {
+        res.send(allowed);
       },
-      tag: function(callback) {
-        var tag = new Tag({
-          name: req.room.name,
-          words: tangos
+      function() {
+        var tangos = tangoUtil.to(req.body.tag.words);
+        async.parallel({
+          word: function(callback) {
+            async.forEach(tangos, function(tango, next) {
+              var word = new Word({
+                name: req.room.name,
+                word: tango
+              });
+              word.saveIfNotExists(function(err) {
+                next(err);
+              });
+            }, function(err) {
+              callback(err);
+            });
+          },
+          tag: function(callback) {
+            var tag = new Tag({
+              name: req.room.name,
+              words: tangos
+            });
+            tag.save(function(err) {
+              callback(err);
+            });
+          }
+        }, function(err, results) {
+          if (err) res.send(err);
+          res.send(null);
         });
-        tag.save(function(err) {
-          callback(err);
-        });
-      }
-    }, function(err, results) {
-      if (err) res.send(err);
-      res.send(null);
-    });
+      });
   });
 };

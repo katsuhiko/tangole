@@ -1,3 +1,6 @@
+/**
+ * Module dependencies.
+ */
 var authUtil = require('../utils/auth-util');
 
 /**
