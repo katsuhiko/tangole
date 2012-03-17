@@ -41,7 +41,7 @@ describe('RoomKey', function() {
   });
 
   describe('#addKey', function() {
-    it('RoomKeyがない状態からKeyを追加できること', function(done) {
+    it('Keyを追加できること_RoomKeyなし', function(done) {
       var roomKey = data;
       RoomKey.addKey(roomKey, function(err) {
         should.not.exist(err);
@@ -55,7 +55,7 @@ describe('RoomKey', function() {
         });
       });
     });
-    it('RoomKeyがある状態からKeyを追加できること', function(done) {
+    it('Keyを追加できること_RoomKeyあり', function(done) {
       var roomKey = data;
       RoomKey.addKey(roomKey, function(err) {
         should.not.exist(err);
@@ -125,7 +125,7 @@ describe('RoomKey', function() {
         done();
       });
     });
-    it('RoomKeyがない状態でKey未登録を確認できること', function(done) {
+    it('Key未登録を確認できること_RoomKeyなし', function(done) {
       var key = {
         name: 'test1',
         location: 'b'
@@ -136,7 +136,7 @@ describe('RoomKey', function() {
         done();
       });
     });
-    it('RoomKeyがある状態でKey未登録を確認できること', function(done) {
+    it('Key未登録を確認できること_RoomKeyあり', function(done) {
       var key = data;
       RoomKey.existsKey(key, function(err, exists) {
         should.not.exist(err);
