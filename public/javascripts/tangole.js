@@ -119,6 +119,20 @@ TANGOLE.output = (function($, g) {
   };
 })(jQuery, this);
 
+TANGOLE.keywords = (function($, g) {
+  var to = function(name, location, keyword) {
+    return SHA256([ name, location, keyword ].join(':'));
+  },
+      hash = function(keyword, salt) {
+        return SHA256([ salt, keyword ].join(':'));
+      };
+  //
+  return {
+    to: to,
+    hash: hash
+  };
+})(jQuery, this);
+
 TANGOLE.menu = (function($, g) {
   var createLink = function($a, callback) {
     if ($a) {

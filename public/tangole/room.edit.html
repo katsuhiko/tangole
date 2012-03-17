@@ -120,7 +120,7 @@ $(document).ready(function() {
     var keyword = prompt('「' + location + '」を入力してください。', '');
     if (keyword === null || keyword.length === 0) return false;
     var name = $('input[name="room[name]"]').val();
-    var hexKeyword = SHA256([ name, location, keyword ].join(':'));
+    var hexKeyword = TANGOLE.keywords.to(name, location, keyword);
     STORY.jsonp.post('../roomkey/:key[name]?callback?', {
         'key[name]': name,
         'key[location]': location,
