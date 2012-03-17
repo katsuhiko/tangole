@@ -1,3 +1,5 @@
+var authUtil = require('../utils/auth-util');
+
 /**
  * Dependencies Model.
  */
@@ -47,6 +49,14 @@ module.exports = function(app) {
   // Update
   app.put('/room/:name', function(req, res) {
     var room = req.room;
+    var allowed = authUtil.identify(req.session, {
+      name: room.name,
+      location: 'roomkey'
+    });
+    if (allowed.allowed === false) {
+      res.send(allowed);
+      return;
+    }
     room.set(req.body.room);
     room.save(function(err) {
       res.send(err);

@@ -133,6 +133,38 @@ TANGOLE.keywords = (function($, g) {
   };
 })(jQuery, this);
 
+TANGOLE.auth = (function($, g) {
+  var login = function(name, location, jsonp, url, params, callback) {
+    return jsonp(url, params, function(err) {
+      if (err && err.allowed !== undefined && err.allowed === false) {
+        var keyword = g.prompt('「' + location + '」を入力してください。', '');
+        if (keyword === null || keyword.length === 0) {
+          g.alert('編集できません。');
+          return false;
+        }
+        var hexKeyword = TANGOLE.keywords.to(name, location, keyword);
+        hexKeyword = TANGOLE.keywords.hash(hexKeyword, err.salt);
+        return STORY.jsonp.post('../auth?callback=?', {
+          'auth[name]': name,
+          'auth[location]': location,
+          'auth[hexKeyword]': hexKeyword
+        }, function(err) {
+          if (!err.allowed) {
+            g.alert('編集できません。');
+            return false;
+          }
+          return jsonp(url, params, callback);
+        });
+      }
+      return callback(err);
+    });
+  };
+  //
+  return {
+    login: login
+  };
+})(jQuery, this);
+
 TANGOLE.menu = (function($, g) {
   var createLink = function($a, callback) {
     if ($a) {

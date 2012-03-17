@@ -83,8 +83,10 @@ $(document).ready(function() {
 
   // 更新処理
   $('#doUpdate').click(function() {
-    STORY.jsonp.put('../room/:room[name]?callback=?', {
-        'room[name]': $('input[name="room[name]"]').val(),
+    var name = $('input[name="room[name]"]').val();
+    var location = 'roomkey';
+    TANGOLE.auth.login(name, location, STORY.jsonp.put, '../room/:room[name]?callback=?', {
+        'room[name]': name,
         'room[desc]': $('input[name="room[desc]"]').val()
       }, function(err) {
       if (err) {
@@ -121,7 +123,7 @@ $(document).ready(function() {
     if (keyword === null || keyword.length === 0) return false;
     var name = $('input[name="room[name]"]').val();
     var hexKeyword = TANGOLE.keywords.to(name, location, keyword);
-    STORY.jsonp.post('../roomkey/:key[name]?callback?', {
+    STORY.jsonp.post('../roomkey/:key[name]?callback=?', {
         'key[name]': name,
         'key[location]': location,
         'key[keyword]': hexKeyword
