@@ -42,8 +42,13 @@
         <input type="button" value="Save" id="doInsert">
         <input type="button" value="Save" id="doUpdate">
         <input type="button" value="Delete" id="doDelete">
-        <input type="button" value="Add Key" id="doAddKey">
-        <input type="button" value="Remove Key" id="doRemoveKey">
+      </td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>
+       <a href="#" id="doAddKey">「roomkey」を設定します。<br>設定すると「roomkey」を知っている人だけがROOM情報を編集できます。</a>
+       <a href="#" id="doRemoveKey">「roomkey」を削除します。<br>削除すると誰でもROOM情報を編集できます。</a>
       </td>
     </tr>
   </table>
@@ -111,10 +116,10 @@ $(document).ready(function() {
 
   // Key追加処理
   $('#doAddKey').click(function() {
-    var keyword = prompt('ROOMを編集するときのKeywordを入力してください。', '');
+    var location = 'roomkey';
+    var keyword = prompt('「' + location + '」を入力してください。', '');
     if (keyword === null || keyword.length === 0) return false;
     var name = $('input[name="room[name]"]').val();
-    var location = 'room';
     var hexKeyword = SHA256([ name, location, keyword ].join(':'));
     STORY.jsonp.post('../roomkey/:key[name]?callback?', {
         'key[name]': name,
@@ -133,11 +138,12 @@ $(document).ready(function() {
 
   // Key削除処理
   $('#doRemoveKey').click(function() {
-    var result = confirm('Keywordを削除すると誰でもこの部屋を編集できるようになります。');
+    var location = 'roomkey'
+    var result = confirm('「' + location + '」を削除します。');
     if (!result) return false;
     STORY.jsonp.del('../roomkey/:key[name]?callback=?', {
         'key[name]': $('input[name="room[name]"]').val(),
-        'key[location]': 'room'
+        'key[location]': location
       }, function(err) {
       if (err) {
         alert('削除時にエラーが発生しました。');
@@ -181,7 +187,7 @@ $(document).ready(function() {
       }, setEditRoom);
     STORY.jsonp.get('../roomkey/:key[name]/exists?callback=?', {
         'key[name]': STORY.url.getVar('room'),
-        'key[location]': 'room'
+        'key[location]': 'roomkey'
       }, function(key) {
         if (key.exists) {
           $('#doAddKey').hide();
