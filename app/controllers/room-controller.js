@@ -6,6 +6,13 @@ var authUtil = require('../utils/auth-util');
 var Room = mongoose.model('Room');
 
 module.exports = function(app) {
+  var auth = function(room) {
+    return {
+      name: room.name,
+      location: 'roomkey'
+    };
+  };
+
   // Find room
   app.param('name', function(req, res, next, name) {
     Room.findOne({name: name}, function(err, room) {
@@ -49,25 +56,31 @@ module.exports = function(app) {
   // Update
   app.put('/room/:name', function(req, res) {
     var room = req.room;
-    var allowed = authUtil.identify(req.session, {
-      name: room.name,
-      location: 'roomkey'
-    });
-    if (allowed.allowed === false) {
-      res.send(allowed);
-      return;
-    }
-    room.set(req.body.room);
-    room.save(function(err) {
-      res.send(err);
+    authUtil.area(
+      req.session, auth(room),
+      function(allowed) {
+        res.send(allowed);
+      },
+      function() {
+        room.set(req.body.room);
+        room.save(function(err) {
+          res.send(err);
+        });
     });
   });
 
   // Delete
   app.del('/room/:name', function(req, res) {
     var room = req.room;
-    room.remove(function(err) {
-      res.send(err);
-    });
+    authUtil.area(
+      req.session, auth(room),
+      function(allowed) {
+        res.send(allowed);
+      },
+      function() {
+        room.remove(function(err) {
+          res.send(err);
+        });
+      });
   });
 };

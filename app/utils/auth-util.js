@@ -1,4 +1,9 @@
 /**
+ * Dependencies Model.
+ */
+var RoomKey = mongoose.model('RoomKey');
+
+/**
  * Random char array.
  */
 var v = 'abcdefghijklmnopqrstuvwxyz'
@@ -79,9 +84,25 @@ var allow = function(session, auth) {
   return session;
 };
 
+var area = function(session, auth, notAllowed, callback) {
+  var allowed = identify(session, auth);
+  if (allowed.allowed === false) {
+    return RoomKey.existsKey(auth, function(err, exists) {
+      if (err) return callback(err);
+      // 認証なしエリア
+      if (!exists) return callback();
+      // 未認証
+      return notAllowed(allowed);
+    });
+  }
+  // 認証済み
+  return callback();
+};
+
 module.exports = {
   ok: ok,
   ng: ng,
   getSalt: getSalt,
-  identify: identify
+  identify: identify,
+  area: area
 };

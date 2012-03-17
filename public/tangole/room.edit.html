@@ -65,6 +65,8 @@
 </nav>
 <script type="text/javascript">
 $(document).ready(function() {
+  var LOCATION = 'roomkey';
+
   // 登録処理
   $('#doInsert').click(function() {
     STORY.jsonp.post('../rooms?callback=?', {
@@ -84,8 +86,7 @@ $(document).ready(function() {
   // 更新処理
   $('#doUpdate').click(function() {
     var name = $('input[name="room[name]"]').val();
-    var location = 'roomkey';
-    TANGOLE.auth.login(name, location, STORY.jsonp.put, '../room/:room[name]?callback=?', {
+    TANGOLE.auth.login(name, LOCATION, STORY.jsonp.put, '../room/:room[name]?callback=?', {
         'room[name]': name,
         'room[desc]': $('input[name="room[desc]"]').val()
       }, function(err) {
@@ -103,7 +104,8 @@ $(document).ready(function() {
   $('#doDelete').click(function() {
     var result = confirm('削除します。');
     if (!result) return false;
-    STORY.jsonp.del('../room/:room[name]?callback=?', {
+    var name = $('input[name="room[name]"]').val();
+    TANGOLE.auth.login(name, LOCATION, STORY.jsonp.del, '../room/:room[name]?callback=?', {
         'room[name]': $('input[name="room[name]"]').val()
       }, function(err) {
       if (err) {
@@ -118,14 +120,13 @@ $(document).ready(function() {
 
   // Key追加処理
   $('#doAddKey').click(function() {
-    var location = 'roomkey';
-    var keyword = prompt('「' + location + '」を入力してください。', '');
+    var keyword = prompt('「' + LOCATION + '」を入力してください。', '');
     if (keyword === null || keyword.length === 0) return false;
     var name = $('input[name="room[name]"]').val();
-    var hexKeyword = TANGOLE.keywords.to(name, location, keyword);
-    STORY.jsonp.post('../roomkey/:key[name]?callback=?', {
+    var hexKeyword = TANGOLE.keywords.to(name, LOCATION, keyword);
+    TANGOLE.auth.login(name, LOCATION, STORY.jsonp.post, '../roomkey/:key[name]?callback=?', {
         'key[name]': name,
-        'key[location]': location,
+        'key[location]': LOCATION,
         'key[keyword]': hexKeyword
       }, function(err) {
       if (err) {
@@ -140,12 +141,12 @@ $(document).ready(function() {
 
   // Key削除処理
   $('#doRemoveKey').click(function() {
-    var location = 'roomkey'
-    var result = confirm('「' + location + '」を削除します。');
+    var result = confirm('「' + LOCATION + '」を削除します。');
     if (!result) return false;
-    STORY.jsonp.del('../roomkey/:key[name]?callback=?', {
+    var name = $('input[name="room[name]"]').val();
+    TANGOLE.auth.login(name, LOCATION, STORY.jsonp.del, '../roomkey/:key[name]?callback=?', {
         'key[name]': $('input[name="room[name]"]').val(),
-        'key[location]': location
+        'key[location]': LOCATION
       }, function(err) {
       if (err) {
         alert('削除時にエラーが発生しました。');
@@ -189,7 +190,7 @@ $(document).ready(function() {
       }, setEditRoom);
     STORY.jsonp.get('../roomkey/:key[name]/exists?callback=?', {
         'key[name]': STORY.url.getVar('room'),
-        'key[location]': 'roomkey'
+        'key[location]': LOCATION
       }, function(key) {
         if (key.exists) {
           $('#doAddKey').hide();

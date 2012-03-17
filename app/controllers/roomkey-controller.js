@@ -1,3 +1,5 @@
+var authUtil = require('../utils/auth-util');
+
 /**
  * Dependencies Model.
  */
@@ -5,6 +7,13 @@ var Room = mongoose.model('Room'),
     RoomKey = mongoose.model('RoomKey');
 
 module.exports = function(app) {
+  var auth = function(room) {
+    return {
+      name: room.name,
+      location: 'roomkey'
+    };
+  };
+
   // Find room
   app.param('name', function(req, res, next, name) {
     Room.findOne({name: name}, function(err, room) {
@@ -30,19 +39,33 @@ module.exports = function(app) {
 
   // Create or Update
   app.post('/roomkey/:name', function(req, res) {
-    var key = req.body.key;
-    key.name = req.room.name;
-    RoomKey.addKey(key, function(err) {
-      res.send(err);
-    });
+    authUtil.area(
+      req.session, auth(req.room),
+      function(allowed) {
+        res.send(allowed);
+      },
+      function() {
+        var key = req.body.key;
+        key.name = req.room.name;
+        RoomKey.addKey(key, function(err) {
+          res.send(err);
+        });
+      });
   });
 
   // Delete
   app.del('/roomkey/:name', function(req, res) {
-    var key = req.body.key;
-    key.name = req.room.name;
-    RoomKey.removeKey(key, function(err) {
-      res.send(err);
-    });
+    authUtil.area(
+      req.session, auth(req.room),
+      function(allowed) {
+        res.send(allowed);
+      },
+      function() {
+        var key = req.body.key;
+        key.name = req.room.name;
+        RoomKey.removeKey(key, function(err) {
+          res.send(err);
+        });
+      });
   });
 };
