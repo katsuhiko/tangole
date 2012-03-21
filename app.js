@@ -50,5 +50,10 @@ controllerFiles.forEach(function(file) {
   require(controllersPath + '/' + file)(app);
 });
 
+// 404
+app.get('*', function(req, res){
+  res.send(404);
+});
+
 app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
