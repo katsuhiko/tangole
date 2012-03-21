@@ -6,7 +6,7 @@
   , "dependencies": {
       "express": "2.5.x"
     , "ejs": ">= 0.0.1"
-    , "mongoose": "2.5.x"
+    , "mongoose": "2.5.10"
     , "async": "0.1.x"
   }
   , "devDependencies": {
