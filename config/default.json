@@ -1,0 +1,11 @@
+{
+  "www": {
+    "port": 3000
+  },
+  "session": {
+    "secret": "default-secret-string"
+  },
+  "data": {
+    "uri": "mongodb://localhost/tangole"
+  }
+}

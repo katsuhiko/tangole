@@ -4,6 +4,7 @@
  */
 
 var express = require('express')
+  , config = require('config') 
   , fs = require('fs')
   , middleware = require('./middleware');
 
@@ -30,13 +31,18 @@ app.configure(function(){
   //app.use(express.methodOverride());
   app.use(middleware.getMethodOverride());
   app.use(express.cookieParser());
-  app.use(express.session({ secret: '####secret####' }));
-  app.use(app.router);
+  app.use(express.session({
+    secret: config.session.secret
+  }));
   app.use(express.static(__dirname + '/public'));
+  app.use(app.router);
 });
 
 app.configure('development', function(){
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+  app.use(express.errorHandler({
+    dumpExceptions: true,
+    showStack: true
+  })); 
 });
 
 app.configure('production', function(){
@@ -55,5 +61,5 @@ app.get('*', function(req, res){
   res.send(404);
 });
 
-app.listen(3000);
+app.listen(config.www.port);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
